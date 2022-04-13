@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -16,7 +17,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.isroid.app.studio.speak.translate.dictionary.translator.ads.InterstitialHelper
 import org.jetbrains.annotations.NotNull
 
-class AppOpenHandler(private val globalClass: Application,var appOpenId:String) : Application.ActivityLifecycleCallbacks,
+class AppOpenHandler(private val globalClass: Application,var appOpenId:String, var startActivity:Activity?=null) : Application.ActivityLifecycleCallbacks,
     LifecycleObserver {
     private val log = "AppOpenManager"
     private var adVisible = false
@@ -96,7 +97,7 @@ class AppOpenHandler(private val globalClass: Application,var appOpenId:String) 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun onAppForegrounded() {
         currentActivity?.let {
-            if(!InterstitialHelper.isInterstitialShowing){
+            if(!InterstitialHelper.isInterstitialShowing && currentActivity!=startActivity){
                 showAdIfAvailable()
             }
         }
