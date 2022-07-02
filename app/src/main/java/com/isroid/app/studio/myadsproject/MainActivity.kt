@@ -2,6 +2,7 @@ package com.isroid.app.studio.myadsproject
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.isroid.app.studio.myadslibrary.AppOpenHandler
 import com.isroid.app.studio.myadslibrary.NativeAdHandler.loadAndShowNativeAd
 
 class MainActivity : AppCompatActivity() {

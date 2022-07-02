@@ -2,6 +2,4 @@
 <resources>
     <color name="colorPrimary">#1B54AA</color>
     <color name="white">#ffffff</color>
-
-    <color name="shimmerColor">#808080</color>
 </resources>

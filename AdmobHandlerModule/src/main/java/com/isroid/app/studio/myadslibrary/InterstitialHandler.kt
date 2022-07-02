@@ -1,4 +1,4 @@
-package com.isroid.app.studio.speak.translate.dictionary.translator.ads
+package com.isroid.app.studio.myadslibrary
 
 import android.app.Activity
 import android.content.Context
@@ -9,24 +9,13 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
-class InterstitialHelper {
-    private var ad:InterstitialAd? = null
+object InterstitialHandler {
+    private var ad: InterstitialAd? = null
     private var interstitialId:String?=null
-
-    companion object {
-        var isInterstitialShowing = false
-
-        //singleton
-        private var instance:InterstitialHelper?=null
-        fun getInstance():InterstitialHelper{
-            return instance?:InterstitialHelper().also {
-                instance = it
-            }
-        }
-    }
+    var isInterstitialShowing = false
 
     private var reTryCount:Int = 0
-    fun loadInterstitialAd(c: Context,adId:String){
+    fun Context.loadInterstitialAd(adId:String){
         if(interstitialId==null){
             interstitialId = adId
         }
@@ -34,13 +23,13 @@ class InterstitialHelper {
             return
         }
         val adRequest = AdRequest.Builder().build()
-        InterstitialAd.load(c,adId,adRequest,object : InterstitialAdLoadCallback(){
+        InterstitialAd.load(this,adId,adRequest,object : InterstitialAdLoadCallback(){
             override fun onAdFailedToLoad(p0: LoadAdError) {
                 super.onAdFailedToLoad(p0)
                 ad = null
                 reTryCount++
                 if(reTryCount<=3){
-                    loadInterstitialAd(c,adId)
+                    loadInterstitialAd(adId)
                 }
             }
 
@@ -51,7 +40,7 @@ class InterstitialHelper {
         })
     }
 
-    fun showInterstitial(a:Activity,onClosedOrFailed:(()->Unit)?=null) {
+    fun Activity.showInterstitial(onClosedOrFailed:(()->Unit)?=null) {
         ad?.let {
             it.fullScreenContentCallback = object : FullScreenContentCallback(){
                 override fun onAdDismissedFullScreenContent() {
@@ -59,7 +48,7 @@ class InterstitialHelper {
                     isInterstitialShowing = false
                     ad = null
                     interstitialId?.let { id->
-                        loadInterstitialAd(a,id)
+                        loadInterstitialAd(id)
                     }
                     onClosedOrFailed?.invoke()
                 }
@@ -68,7 +57,7 @@ class InterstitialHelper {
                     isInterstitialShowing = false
                     ad = null
                     interstitialId?.let { id->
-                        loadInterstitialAd(a,id)
+                        loadInterstitialAd(id)
                     }
                     onClosedOrFailed?.invoke()
                 }
@@ -78,10 +67,10 @@ class InterstitialHelper {
                     isInterstitialShowing = true
                 }
             }
-            it.show(a)
+            it.show(this)
         } ?: run {
             interstitialId?.let { id->
-                loadInterstitialAd(a,id)
+                loadInterstitialAd(id)
             }
             onClosedOrFailed?.invoke()
         }

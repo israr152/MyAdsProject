@@ -1,11 +1,8 @@
 package com.isroid.app.studio.myadslibrary
 
 import android.app.Activity
-import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
-import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
@@ -13,38 +10,28 @@ import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
 
 object NativeAdHandler {
-
     fun Activity.loadAndShowNativeAd(
-        type:String = "large",
-        layoutId: Int?=null,
-        shimmerLayoutId:Int?=null,
+        layoutId: Int,
         container: FrameLayout,
         adId:String,
-        onLoad:((NativeAd)->Unit)?=null
+        nativeAd:NativeAd?,
+        onLoad:((NativeAd)->Unit)?=null,
+        onFail:(()->Unit)? = null
     ) {
-        val shimmerId = shimmerLayoutId ?:run{
-            if(type=="large"){
-                R.layout.shimmer_native_ad_layout_large
-            }else{
-                R.layout.shimmer_native_ad_small
-            }
-        }
-        val adLayoutId = layoutId ?: run {
-            if(type=="large"){
-                R.layout.native_ad_layout_large
-            }else{
-                R.layout.native_ad_layout_small
-            }
-        }
+//        showShimmerLayout(shimmerLayoutId,container)
 
-        showNativeAdShimmer(shimmerId,container)
-
-        loadNativeAd(adId,onLoad = {
+        nativeAd?.let {
             onLoad?.invoke(it)
-            setNativeAd(container,adLayoutId,it)
-        }){
-            container.removeAllViews()
-            container.visibility = View.GONE
+            setNativeAd(container,layoutId,it)
+        }?:run{
+            loadNativeAd(adId,onLoad = {
+                onLoad?.invoke(it)
+                setNativeAd(container,layoutId,it)
+            }){
+                onFail?.invoke()
+                container.removeAllViews()
+                container.visibility = View.GONE
+            }
         }
     }
 
@@ -69,16 +56,16 @@ object NativeAdHandler {
     }
 
     fun Activity.setNativeAd(container: FrameLayout,layoutId: Int,nativeAd: NativeAd){
-        val adView = (getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(
+        container.removeAllViews()
+        val adView = layoutInflater.inflate(
                 layoutId,
                 null
             ) as NativeAdView
         populateUnifiedNativeAdView(nativeAd, adView)
-        container.removeAllViews()
         container.addView(adView)
     }
 
-    fun populateUnifiedNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
+    private fun populateUnifiedNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
         val mediaView: MediaView = adView.findViewById(R.id.ad_media)
         adView.mediaView = mediaView
         adView.headlineView = adView.findViewById(R.id.ad_headline)
@@ -123,12 +110,5 @@ object NativeAdHandler {
         }
 
         adView.setNativeAd(nativeAd)
-    }
-
-    private fun Activity.showNativeAdShimmer(shimmerLayoutId:Int, container:FrameLayout){
-        val shimmerFrameLayout = layoutInflater.inflate(shimmerLayoutId,null,false) as ShimmerFrameLayout
-        container.removeAllViews()
-        container.addView(shimmerFrameLayout)
-        shimmerFrameLayout.startShimmer()
     }
 }
