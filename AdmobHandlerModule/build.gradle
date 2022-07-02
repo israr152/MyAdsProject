@@ -40,7 +40,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-process:2.4.1'
 
     //admob
-    implementation 'com.google.android.gms:play-services-ads:21.0.0'
+    implementation 'com.google.android.gms:play-services-ads-lite:21.0.0'
 
     //SDP Library
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
